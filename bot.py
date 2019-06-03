@@ -20,4 +20,4 @@ async def get_user(ctx, arg):
 	
 	await ctx.send(resp.json()['Username'])
 
-bot.run("NTg0MTY1OTkwMzM0NzI2MTY0.XPG9vA.BtYle3fZ0exIffEg8824Ja82FvY")
+bot.run("TOKEN")
