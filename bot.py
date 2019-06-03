@@ -24,4 +24,5 @@ async def get_user(ctx, arg):
 @bot.command(name="getbot")
 async def get_bot_repo(ctx):
 	await ctx.send("Here's a link to my code! {}".format("https://www.github.com/brennengreen/DiscordBotTesting"))
+	
 bot.run(config["token"])
