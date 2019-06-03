@@ -1,8 +1,9 @@
-import discord
 from discord.ext import commands
-import requests
+import requests, json
 
-bot = commands.Bot(command_prefix='.')
+config = json.load(open("config.json")) # Thanks Colton
+
+bot = commands.Bot(command_prefix=config["prefix"])
 
 @bot.event
 async def on_ready():
@@ -15,9 +16,12 @@ async def get_user(ctx, arg):
 	
 	resp = requests.get(request_url)
 	if resp.status_code != 200:
-		await message.channel.send("Invalid UserId!\n```GET /users/{} Error Code:{}```".format(user_id, resp.status_code))
+		await ctx.send("Invalid UserId!\n```GET /users/{} Error Code:{}```".format(user_id, resp.status_code))
 		return
 	
 	await ctx.send(resp.json()['Username'])
 
-bot.run("NTg0MTY1OTkwMzM0NzI2MTY0.XPG9vA.BtYle3fZ0exIffEg8824Ja82FvY")
+@bot.command(name="getbot")
+async def get_bot_repo(ctx):
+	await ctx.send("Here's a link to my code! {}".format("https://www.github.com/brennengreen/DiscordBotTesting"))
+bot.run(config["token"])
