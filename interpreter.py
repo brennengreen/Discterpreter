@@ -24,7 +24,7 @@ class Token(object):
 		#		   Token(PLUS, '+')			#
 		return "Token({type}, {value})".format(
 			type=self.type,
-			value=self.value
+			value=repr(self.value)
 		)
 	
 	def __repr__(self):
@@ -32,44 +32,58 @@ class Token(object):
 
 class Interpreter(object):
 	def __init__(self, text):
+		print(text)
 		# client string input, e.g. "3+5"
 		self.text = text
 		# self.pos is an index ingto self.text
 		self.pos = 0
 		# current token instance
 		self.current_token = None
+		self.current_char = self.text[self.pos]
 	
 	def error(self):
 		raise Exception("Error Parsing Input")
 	
+	def advance(self):
+		""" Advance the 'pos' pointer and s et the 'current_char' variable. """
+		self.pos += 1
+		if self.pos > len(self.text) - 1:
+			self.current_char = None
+		else:
+			self.current_char = self.text[self.pos]
+
+	def skip_whitespace(self):
+		while self.current_char is not None and self.current_char.isspace():
+			self.advance()
+	
+	def integer(self):
+		""" Return a (multidigit) integer consumed from the input. """
+		result = ''
+		while self.current_char is not None and self.current_char.isdigit():
+			result += self.current_char
+			self.advance()
+		return int(result)
+
 	def get_next_token(self):
 		# Lexical Analyzer (aka Scanner/Tokenizer) #
 		#                                          #
 		# This method is responsible for breaking  #
 		# breaking a sentence apart into token.    #
-		text = self.text
+		while self.current_char is not None:
+			if self.current_char.isspace():
+				self.skip_whitespace()
+				continue
+			
+			if self.current_char.isdigit():
+				return Token(INTEGER, self.integer())
 
-		# Check if Interpreter is at end of input
-		if self.pos > len(text) - 1:
-			return Token(EOF, None)
-		
-		current_char = text[self.pos]
-
-		if current_char == " ":
-			self.pos += 1
-			return self.get_next_token()
-
-		if current_char.isdigit():
-			token = Token(INTEGER, int(current_char))
-			self.pos += 1
-			return token
-		
-		if current_char in operations:
-			token = Token(operations[current_char], current_char)
-			self.pos += 1
-			return token
-		
-		self.error()
+			if self.current_char in operations:
+				token = Token(operations[self.current_char], self.current_char)
+				self.advance()
+				return token
+			
+			self.error()
+		return Token(EOF, None)
 	
 	def eat(self, token_type):
 		if self.current_token.type == token_type:
@@ -81,22 +95,16 @@ class Interpreter(object):
 		"""expr -> INTEGER PLUS INTEGER"""
 		self.current_token = self.get_next_token()
 
-		left = []
-		while self.current_token.type == INTEGER:
-			left.append(self.current_token)
-			self.eat(INTEGER)
-		left = int(''.join([str(t.value) for t in left]))
+		left = self.current_token
+		self.eat(INTEGER)
 
-		operation = self.current_token
-		self.eat(operation.type)
+		op = self.current_token
+		self.eat(op.type)
 
-		right = []
-		while self.current_token.type == INTEGER:
-			right.append(self.current_token)
-			self.eat(INTEGER)
-		right = int(''.join([str(t.value) for t in right]))
+		right = self.current_token
+		self.eat(INTEGER)
 
-		if operation.type == PLUS:
-			return left + right
-		if operation.type == MINUS:
-			return left - right
+		if op.type == PLUS:
+			return left.value + right.value
+		if op.type == MINUS:
+			return left.value - right.value

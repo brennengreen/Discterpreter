@@ -1,21 +1,21 @@
-from discord.ext import commands
+import discord
 from interpreter import Interpreter
 import requests, json
 
 config = json.load(open("config.json")) # Thanks Colton
 
-bot = commands.Bot(command_prefix=config["prefix"])
+client = discord.Client()
 
 #def create_auth_session(request):
 #	request.post("https://auth.roblox.com/v2/login", request)
-	
 
-@bot.event
+
+@client.event
 async def on_ready():
 	#create_auth_session(config["bot_auth"])
-	print("We have logged in as {0.user}".format(bot))
+	print("We have logged in as {0.user}".format(client))
 
-@bot.command(name="getuser")
+"""@bot.command(name="getuser")
 async def get_user(ctx, arg):
 	user_id = arg
 	request_url = "https://api.roblox.com/users/{}".format(user_id)
@@ -30,10 +30,18 @@ async def get_user(ctx, arg):
 @bot.command(name="getbot")
 async def get_bot_repo(ctx):
 	await ctx.send("Here's a link to my code! {}".format("https://www.github.com/brennengreen/DiscordBotTesting"))
+"""
 
-@bot.command(name="run")
-async def run_code(ctx, arg):
-	parse = arg[3:len(arg)-3]
-	await ctx.send(Interpreter(parse).expr())
+def parse(msg):
+	stream = msg[3:len(msg)-3]
+	return Interpreter(stream).expr()
+
+@client.event
+async def on_message(msg):
+	if msg.author == client.user:
+		return
+
+	if msg.content.startswith("!run"):
+		await msg.channel.send(parse(msg.content[5:]))
 	
-bot.run(config["token"])
+client.run(config["token"])
