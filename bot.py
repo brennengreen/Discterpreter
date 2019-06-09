@@ -43,5 +43,12 @@ async def on_message(msg):
 
 	if msg.content.startswith("!run"):
 		await msg.channel.send(parse(msg.content[5:]))
-	
+	elif msg.content.startswith("!repo"):
+		await msg.channel.send(
+			"Here's a link to my GitHub Repository! {}".format("https://www.github.com/brennengreen/DiscordBotTesting")
+		)
+	elif msg.content.startswith("!website"):
+		await msg.channel.send("Sorry :grimacing:, I'm still learning this command") 
+	elif msg.content.startswith("!feedback"):
+		await msg.channel.send("You can message Drey#5314 on Discord with feedback!")
 client.run(config["token"])

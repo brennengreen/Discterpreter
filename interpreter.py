@@ -6,11 +6,9 @@
 # DATA TYPES:
 INTEGER = 'INTEGER'
 # OPERATIONS
-PLUS, MINUS =  'PLUS', 'MINUS'
+PLUS, MINUS, MULTIPLY, DIVIDE =  'PLUS', 'MINUS','MULTIPLY','DIVIDE'
 # FILE OPERATIONS
 EOF = 'EOF'
-
-operations = {'+':PLUS, '-':MINUS}
 
 class Token(object):
 	def __init__(self, type, value):
@@ -21,7 +19,7 @@ class Token(object):
 	def __str__(self):
 		# String represenation of token		#
 		# Example: Token(INTEGER, 3)		#
-		#		   Token(PLUS, '+')			#
+		#		   Token(PLUS, '+')	#
 		return "Token({type}, {value})".format(
 			type=self.type,
 			value=repr(self.value)
@@ -42,7 +40,7 @@ class Interpreter(object):
 		self.current_char = self.text[self.pos]
 	
 	def error(self):
-		raise Exception("Error Parsing Input")
+		raise Exception("Invalid syntax")
 	
 	def advance(self):
 		""" Advance the 'pos' pointer and s et the 'current_char' variable. """
@@ -77,10 +75,12 @@ class Interpreter(object):
 			if self.current_char.isdigit():
 				return Token(INTEGER, self.integer())
 
-			if self.current_char in operations:
-				token = Token(operations[self.current_char], self.current_char)
+			if self.current_char == '+':
 				self.advance()
-				return token
+				return Token(PLUS, '+')
+			if self.current_char == '-':
+				self.advance()
+				return Token(MINUS, '-')
 			
 			self.error()
 		return Token(EOF, None)
@@ -91,20 +91,23 @@ class Interpreter(object):
 		else:
 			self.error()
 
+	def term(self):
+		""" RETURN an INTEGER token value """
+		token = self.current_token
+		self.eat(INTEGER)
+		return token.value
+
 	def expr(self):
-		"""expr -> INTEGER PLUS INTEGER"""
+		""" parse then interpret stream """
 		self.current_token = self.get_next_token()
 
-		left = self.current_token
-		self.eat(INTEGER)
-
-		op = self.current_token
-		self.eat(op.type)
-
-		right = self.current_token
-		self.eat(INTEGER)
-
-		if op.type == PLUS:
-			return left.value + right.value
-		if op.type == MINUS:
-			return left.value - right.value
+		result = self.term()
+		while self.current_token.type in (PLUS, MINUS):
+			token = self.current_token
+			if token.type == PLUS:
+				self.eat(PLUS)
+				result = result + self.term()
+			elif token.type == MINUS:
+				self.eat(MINUS)
+				result = result - self.term()
+		return result
