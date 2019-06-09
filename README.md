@@ -10,7 +10,7 @@
 Discterpreter is an MoonScript interpreter written in Python that can be used to quickly prototype scripts on the go using Discord.
 
 ## How do I use Discterpreter?
-Using discterpreter is simple! first read up on the [MoonScript]() reference guide to understand the fundamentals of the language. Then while in a server that Disterpreter is a part of. Use the command **!drun ``` code to run here ```**
+Using discterpreter is simple! first read up on the [MoonScript]() reference guide to understand the fundamentals of the language. Then while in a server that Disterpreter is a part of. Use the command **!drun ``` code to run here ```** (in triple single quotes)
 
 Discterpreter will automatically display the output of your program to console!
 
